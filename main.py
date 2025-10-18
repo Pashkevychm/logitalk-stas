@@ -12,7 +12,7 @@ class SideFrame(CTkFrame):
 
         self.label = CTkLabel(self, text='Ваше Ім`я')
         self.label.pack(pady=30)
-        self.entry = CTkEntry(self, placeholder_text="Введіть нікнейм...")
+        self.entry = CTkEntry(self, placeholder_text="Введіть нікнейм")
         self.entry.pack()
         self.btn = CTkButton(self, text="Встановити нікнейм", command=parent.change_nickname)
         self.btn.pack(pady=10)
@@ -146,4 +146,5 @@ class MainWindow(CTk):
 
 
 win = MainWindow()
+
 win.mainloop()
