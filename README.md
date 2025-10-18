@@ -1,1 +1,2 @@
 # logitalk-stas
+шиномонтаж
