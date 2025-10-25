@@ -3,6 +3,39 @@ from socket import *
 import threading
 
 
+class RegisterWindow(CTk):
+    def __init__(self):
+        super().__init__()
+        self.username = None
+        self.title("Приєднатися до сервера")
+        self.geometry("300x300")
+        CTkLabel(self, text="Вхід в LogiTalk",font=("Arial",20,"bold")).pack(pady=40)
+        self.name_entry = CTkEntry(self, placeholder_text="Введіть ім'я")
+        self.name_entry.pack()
+        self.host_entry = CTkEntry(self, placeholder_text="Введіть хост сервера localhost")
+        self.host_entry.pack(pady=5)
+        self.port_entry = CTkEntry(self, placeholder_text="Введіть порт сервера 12334")
+        self.port_entry.pack()
+        self.submit_button = CTkButton(self, text="Приєднатися",command=self.start_chat)
+        self.submit_button.pack(pady=5)
+
+    def start_chat(self):
+        self.username = self.name_entry.get().strip()
+        try:
+            self.sock = socket(AF_INET, SOCK_STREAM)
+            self.sock.connect((self.host_entry.get(), int(self.port_entry.get())))
+            hello = f"[SYSTEM] {self.username} приєднався(лась) до чату!\n"
+            self.sock.send(hello.encode('utf-8'))
+            self.destroy()
+            win = MainWindow(self.sock, self.username)
+            win.mainloop()
+        except Exception as e:
+            print(f"Не вдалося підключитися до сервера: {e}")
+
+
+
+
+
 class SideFrame(CTkFrame):
     def __init__(self, parent: 'MainWindow'):
         super().__init__(parent, width=200, height=parent.winfo_height())
@@ -22,7 +55,7 @@ class SideFrame(CTkFrame):
 
 
 class MainWindow(CTk):
-    def __init__(self):
+    def __init__(self, sock, username):
         super().__init__()
         self.geometry('400x300')
         self.title("Назва")
@@ -33,9 +66,10 @@ class MainWindow(CTk):
 
         self.create_ui()
 
-        self.username = "Stas"
-        self.sock = None
-        self.connect()
+        self.username = username
+        self.sock = sock
+        threading.Thread(target=self.recv_message, daemon=True).start()
+
 
     def create_ui(self):
         self.frame = SideFrame(self)
@@ -145,6 +179,7 @@ class MainWindow(CTk):
 
 
 
-win = MainWindow()
+win = RegisterWindow()
 
 win.mainloop()
+
